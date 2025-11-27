@@ -1,0 +1,24 @@
+type User @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  username: String!
+  email: String!
+  age: Int
+  gender: String
+  bio: String
+  photos: [String]
+}
+
+type Match @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  userID: ID!
+  matchedUserID: ID!
+  timestamp: AWSDateTime!
+}
+
+type Message @model @auth(rules: [{ allow: owner }]) {
+  id: ID!
+  conversationID: ID!
+  senderID: ID!
+  text: String
+  timestamp: AWSDateTime!
+}

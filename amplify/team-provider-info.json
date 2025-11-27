@@ -1,0 +1,29 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amoro-dev-70005-authRole",
+      "UnauthRoleArn": "arn:aws:iam::922246742434:role/amplify-amoro-dev-70005-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::922246742434:role/amplify-amoro-dev-70005-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-amoro-dev-70005-deployment",
+      "UnauthRoleName": "amplify-amoro-dev-70005-unauthRole",
+      "StackName": "amplify-amoro-dev-70005",
+      "StackId": "arn:aws:cloudformation:us-east-1:922246742434:stack/amplify-amoro-dev-70005/3e8c6db0-b61e-11f0-9d45-0affcfcff881",
+      "AmplifyAppId": "dsttd7yjnjma8"
+    },
+    "categories": {
+      "auth": {
+        "amoro7d330404": {}
+      },
+      "api": {
+        "amoro": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "dsttd7yjnjma8",
+          "type": "manual"
+        }
+      }
+    }
+  }
+}
