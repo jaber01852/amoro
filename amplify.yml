@@ -3,26 +3,20 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Download Flutter SDK (Linux version for Amplify build environment)
         - echo "Downloading Flutter SDK..."
-        - if [ ! -d "flutter" ]; then wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.4-stable.tar.gz -O flutter_linux.tar.gz; fi
-        - if [ ! -d "flutter" ]; then tar -xzf flutter_linux.tar.gz; fi
-        # Add Flutter to PATH
+        - if [ ! -d "flutter" ]; then wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.0-stable.tar.xz -O flutter_linux.tar.xz; fi
+        - if [ ! -d "flutter" ]; then tar xf flutter_linux.tar.xz; fi
         - export PATH="$PWD/flutter/bin:$PATH"
-        - flutter --version
-        # Get packages
+        - flutter doctor
         - flutter pub get
     build:
       commands:
-        # Build web release
         - flutter build web --release
   artifacts:
-    # Output directory for Amplify hosting
     baseDirectory: build/web
     files:
-      - '**/*'
+      - "**/*"
   cache:
-    # Cache Flutter SDK & packages to speed up subsequent builds
     paths:
-      - flutter/
-      - .pub-cache/
+      - flutter
+      - ~/.pub-cache
