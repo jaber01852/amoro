@@ -3,12 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Installing system dependencies..."
+        - sudo yum install -y xz   # Gen-2 Linux images are Amazon Linux based
         - echo "Setting up Flutter SDK 3.38.0..."
         - |
           if [ ! -d "$HOME/flutter" ]; then
-            curl -L -sS https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.0-stable.tar.gz -o flutter_linux.tar.gz
+            curl -L -sS https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.0-stable.tar.xz -o flutter_linux.tar.xz
             mkdir -p $HOME/flutter
-            tar -xzf flutter_linux.tar.gz -C $HOME/flutter --strip-components=1
+            tar -xJf flutter_linux.tar.xz -C $HOME/flutter --strip-components=1
           fi
         - export PATH="$HOME/flutter/bin:$PATH"
         - flutter --version
