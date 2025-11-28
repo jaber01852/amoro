@@ -3,10 +3,8 @@ frontend:
   phases:
     preBuild:
       commands:
-        - echo "Installing system dependencies..."
-        - apt-get update && apt-get install -y xz-utils curl unzip git
         - echo "Setting up Flutter SDK 3.38.0..."
-        # Check if Flutter already exists in cache
+        # Check if Flutter exists in cache
         - if [ ! -d "$HOME/flutter" ]; then
             curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.0-stable.tar.xz;
             mkdir -p $HOME/flutter;
