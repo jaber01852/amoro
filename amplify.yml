@@ -3,10 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Install Flutter
-        - curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.32.4-stable.zip
-        - powershell -Command "Expand-Archive flutter_windows_3.32.4-stable.zip -DestinationPath C:\flutter"
-        - setx PATH "C:\flutter\flutter\bin;%PATH%"
+        # Install Flutter (Linux)
+        - wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.4-stable.tar.xz
+        - tar xf flutter_linux_3.32.4-stable.tar.xz
+        - export PATH="$PWD/flutter/bin:$PATH"
         - flutter doctor
         - flutter pub get
     build:
