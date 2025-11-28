@@ -1,0 +1,114 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-amoro-dev-70005-authRole",
+      "UnauthRoleArn": "arn:aws:iam::922246742434:role/amplify-amoro-dev-70005-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::922246742434:role/amplify-amoro-dev-70005-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-amoro-dev-70005-deployment",
+      "UnauthRoleName": "amplify-amoro-dev-70005-unauthRole",
+      "StackName": "amplify-amoro-dev-70005",
+      "StackId": "arn:aws:cloudformation:us-east-1:922246742434:stack/amplify-amoro-dev-70005/3e8c6db0-b61e-11f0-9d45-0affcfcff881",
+      "AmplifyAppId": "dsttd7yjnjma8"
+    }
+  },
+  "auth": {
+    "amoro7d330404": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-amoro-dev-70005-deployment/amplify-cfn-templates/auth/amoro7d330404-cloudformation-template.json",
+        "logicalId": "authamoro7d330404"
+      },
+      "lastPushTimeStamp": "2025-11-28T03:02:59.141Z",
+      "output": {
+        "UserPoolId": "us-east-1_vBarcK2GG",
+        "AppClientIDWeb": "7fu110revv9cqeqk7cassl5nrj",
+        "AppClientID": "2p89johgkjtf1legdqk1hm77ps",
+        "IdentityPoolId": "us-east-1:855ef32f-5319-4dc4-bb6c-2042f7d3c65b",
+        "UserPoolArn": "arn:aws:cognito-idp:us-east-1:922246742434:userpool/us-east-1_vBarcK2GG",
+        "IdentityPoolName": "amoro7d330404_identitypool_7d330404__dev",
+        "UserPoolName": "amoro7d330404_userpool_7d330404"
+      },
+      "lastPushDirHash": "Yy93U7IKukkht6du8y5rdECvjMw="
+    }
+  },
+  "api": {
+    "amoro": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "auth",
+          "resourceName": "amoro7d330404",
+          "attributes": [
+            "UserPoolId"
+          ]
+        }
+      ],
+      "output": {
+        "authConfig": {
+          "defaultAuthentication": {
+            "authenticationType": "API_KEY",
+            "apiKeyConfig": {
+              "apiKeyExpirationDays": 7
+            }
+          },
+          "additionalAuthenticationProviders": [
+            {
+              "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+              "userPoolConfig": {
+                "userPoolId": "authamoro7d330404"
+              }
+            }
+          ]
+        },
+        "GraphQLAPIIdOutput": "xjc7xuxdo5ahbcmej2nmkgdlx4",
+        "GraphQLAPIEndpointOutput": "https://quxx32l5xzhndc2qnp26bsjpb4.appsync-api.us-east-1.amazonaws.com/graphql",
+        "GraphQLAPIKeyOutput": "da2-gmoqmvclrbc2xesxb4ffbg54t4"
+      },
+      "lastPushTimeStamp": "2025-11-28T03:02:59.155Z",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-amoro-dev-70005-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+        "logicalId": "apiamoro"
+      },
+      "lastPushDirHash": "VHeZGuIhbERwVhoje0gpolGSPYk="
+    }
+  },
+  "hosting": {
+    "amplifyhosting": {
+      "service": "amplifyhosting",
+      "providerPlugin": "awscloudformation",
+      "type": "manual",
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-amoro-dev-70005-deployment/amplify-cfn-templates/hosting/amplifyhosting-template.json",
+        "logicalId": "hostingamplifyhosting"
+      },
+      "lastPushTimeStamp": "2025-11-28T03:02:59.254Z",
+      "output": {},
+      "lastPushDirHash": "g2NKT0vk8w1dLwCFO2ZwqDwTQNI="
+    }
+  }
+}
