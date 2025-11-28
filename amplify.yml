@@ -4,11 +4,11 @@ frontend:
     preBuild:
       commands:
         - echo "Setting up Flutter SDK 3.38.0..."
-        # Check if Flutter exists in cache
-        - if [ ! -d "$HOME/flutter" ]; then
-            curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.0-stable.tar.xz;
-            mkdir -p $HOME/flutter;
-            tar xf flutter_linux_3.38.0-stable.tar.xz -C $HOME/flutter --strip-components=1;
+        - |
+          if [ ! -d "$HOME/flutter" ]; then
+            curl -L -sS https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.38.0-stable.tar.gz -o flutter_linux.tar.gz
+            mkdir -p $HOME/flutter
+            tar -xzf flutter_linux.tar.gz -C $HOME/flutter --strip-components=1
           fi
         - export PATH="$HOME/flutter/bin:$PATH"
         - flutter --version
