@@ -3,9 +3,9 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Install Flutter (Linux)
-        - wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.4-stable.tar.xz
-        - tar xf flutter_linux_3.32.4-stable.tar.xz
+        # Install Flutter (Linux .tar.gz version)
+        - wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.32.4-stable.tar.gz
+        - tar -xzf flutter_linux_3.32.4-stable.tar.gz
         - export PATH="$PWD/flutter/bin:$PATH"
         - flutter doctor
         - flutter pub get
