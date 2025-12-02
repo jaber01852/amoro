@@ -1,0 +1,25 @@
+type UserProfile
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "owner", operations: [create, read, update] },
+      { allow: public, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  owner: String! @index(name: "byOwner", queryField: "userProfileByOwner")
+
+  name: String!
+  age: Int!
+  gender: String!
+  bio: String
+
+  photoKey: String
+
+  lat: Float
+  lng: Float
+
+  interestedIn: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}

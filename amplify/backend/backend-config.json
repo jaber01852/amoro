@@ -84,5 +84,12 @@
         }
       ]
     }
+  },
+  "storage": {
+    "userprofilephotos": {
+      "dependsOn": [],
+      "providerPlugin": "awscloudformation",
+      "service": "S3"
+    }
   }
 }

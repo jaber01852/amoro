@@ -74,7 +74,22 @@ const amplifyconfig = '''{
                         "AuthMode": "AMAZON_COGNITO_USER_POOLS",
                         "ClientDatabasePrefix": "amoro_AMAZON_COGNITO_USER_POOLS"
                     }
+                },
+                "S3TransferUtility": {
+                    "Default": {
+                        "Bucket": "amoro-userphotos70005-dev",
+                        "Region": "us-east-1"
+                    }
                 }
+            }
+        }
+    },
+    "storage": {
+        "plugins": {
+            "awsS3StoragePlugin": {
+                "bucket": "amoro-userphotos70005-dev",
+                "region": "us-east-1",
+                "defaultAccessLevel": "guest"
             }
         }
     }

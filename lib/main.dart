@@ -10,21 +10,28 @@ void main() async {
   runApp(MyApp());
 }
 
+/// ------------------------------
+/// CONFIGURE AMPLIFY
+/// ------------------------------
 Future<void> _configureAmplify() async {
   try {
-    final auth = AmplifyAuthCognito();
-    final api = AmplifyAPI();
+    await Amplify.addPlugins([
+      AmplifyAuthCognito(),
+      AmplifyAPI(),
+    ]);
 
-    await Amplify.addPlugins([auth, api]);
     await Amplify.configure(amplifyconfig);
-    safePrint('✅ Amplify configured successfully');
+    safePrint("✅ Amplify configured");
   } on AmplifyAlreadyConfiguredException {
-    safePrint('⚠️ Amplify was already configured.');
+    safePrint("⚠️ Amplify already configured.");
   } catch (e) {
-    safePrint('❌ Error configuring Amplify: $e');
+    safePrint("❌ Amplify error: $e");
   }
 }
 
+/// ------------------------------
+/// ROOT APP
+/// ------------------------------
 class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
@@ -37,10 +44,10 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _checkUserSession();
+    _checkSession();
   }
 
-  Future<void> _checkUserSession() async {
+  Future<void> _checkSession() async {
     try {
       final session = await Amplify.Auth.fetchAuthSession();
       setState(() {
@@ -48,13 +55,10 @@ class _MyAppState extends State<MyApp> {
         _isLoading = false;
       });
     } catch (e) {
-      safePrint('Session check error: $e');
+      safePrint("Session error: $e");
       setState(() => _isLoading = false);
     }
   }
-
-  void _onSignedIn() => setState(() => _isSignedIn = true);
-  void _onSignedOut() => setState(() => _isSignedIn = false);
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +68,17 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Amoro',
-      home: _isSignedIn ? HomeScreen(onSignOut: _onSignedOut) : AuthScreen(onSignedIn: _onSignedIn),
+      title: "Amoro",
+      home: _isSignedIn ? HomeScreen() : AuthScreen(onSignedIn: () {
+        setState(() => _isSignedIn = true);
+      }),
     );
   }
 }
 
+/// ------------------------------
+/// AUTH SCREEN (LOGIN + SIGN UP)
+/// ------------------------------
 class AuthScreen extends StatefulWidget {
   final VoidCallback onSignedIn;
   const AuthScreen({required this.onSignedIn});
@@ -79,226 +88,189 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmCodeController = TextEditingController();
-  final newPasswordController = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final confirm = TextEditingController();
 
-  String status = '';
-  bool showConfirmation = false;
-  bool showReset = false;
-  bool _isLoading = false;
-
-  Future<void> _withLoading(Future<void> Function() action) async {
-    setState(() => _isLoading = true);
-    try {
-      await action();
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
+  bool showConfirm = false;
+  bool loading = false;
+  String status = "";
 
   Future<void> _signUp() async {
-    await _withLoading(() async {
-      try {
-        final result = await Amplify.Auth.signUp(
-          username: emailController.text.trim(),
-          password: passwordController.text.trim(),
-          options: SignUpOptions(
-            userAttributes: {
-              CognitoUserAttributeKey.email: emailController.text.trim(),
-            },
-          ),
-        );
+    setState(() => loading = true);
+    try {
+      final result = await Amplify.Auth.signUp(
+        username: email.text.trim(),
+        password: password.text.trim(),
+        options: SignUpOptions(
+          userAttributes: {CognitoUserAttributeKey.email: email.text.trim()},
+        ),
+      );
 
-        if (result.isSignUpComplete) {
-          setState(() => status = '✅ Sign-up complete, please sign in.');
-        } else {
-          setState(() {
-            showConfirmation = true;
-            status = '📩 Confirmation code sent to your email.';
-          });
-        }
-      } catch (e) {
-        setState(() => status = '❌ Sign-up failed: $e');
+      if (!result.isSignUpComplete) {
+        showConfirm = true;
+        status = "📩 Check your email for the confirmation code.";
       }
-    });
+    } catch (e) {
+      status = "❌ Sign-up failed: $e";
+    }
+    setState(() => loading = false);
   }
 
   Future<void> _confirmSignUp() async {
-    await _withLoading(() async {
-      try {
-        final result = await Amplify.Auth.confirmSignUp(
-          username: emailController.text.trim(),
-          confirmationCode: confirmCodeController.text.trim(),
-        );
+    setState(() => loading = true);
+    try {
+      await Amplify.Auth.confirmSignUp(
+        username: email.text.trim(),
+        confirmationCode: confirm.text.trim(),
+      );
 
-        if (result.isSignUpComplete) {
-          await _signIn(); // Auto sign-in
-        } else {
-          setState(() => status = '⚠️ Confirmation not complete yet.');
-        }
-      } catch (e) {
-        setState(() => status = '❌ Confirmation failed: $e');
-      }
-    });
-  }
-
-  Future<void> _resendCode() async {
-    await _withLoading(() async {
-      try {
-        await Amplify.Auth.resendSignUpCode(
-          username: emailController.text.trim(),
-        );
-        setState(() => status = '📨 A new confirmation code has been sent!');
-      } catch (e) {
-        setState(() => status = '❌ Failed to resend code: $e');
-      }
-    });
+      await _signIn();
+    } catch (e) {
+      status = "❌ Confirmation failed: $e";
+    }
+    setState(() => loading = false);
   }
 
   Future<void> _signIn() async {
-    await _withLoading(() async {
-      try {
-        final result = await Amplify.Auth.signIn(
-          username: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
+    setState(() => loading = true);
+    try {
+      final result = await Amplify.Auth.signIn(
+        username: email.text.trim(),
+        password: password.text.trim(),
+      );
 
-        if (result.isSignedIn) {
-          widget.onSignedIn();
-        } else {
-          setState(() => status = '⚠️ Sign-in not complete.');
-        }
-      } catch (e) {
-        setState(() => status = '❌ Sign-in failed: $e');
+      if (result.isSignedIn) {
+        widget.onSignedIn();
       }
-    });
-  }
-
-  Future<void> _forgotPassword() async {
-    await _withLoading(() async {
-      try {
-        await Amplify.Auth.resetPassword(
-          username: emailController.text.trim(),
-        );
-        setState(() {
-          showReset = true;
-          status = '📩 Reset code sent to your email.';
-        });
-      } catch (e) {
-        setState(() => status = '❌ Failed to send reset code: $e');
-      }
-    });
-  }
-
-  Future<void> _confirmForgotPassword() async {
-    await _withLoading(() async {
-      try {
-        await Amplify.Auth.confirmResetPassword(
-          username: emailController.text.trim(),
-          newPassword: newPasswordController.text.trim(),
-          confirmationCode: confirmCodeController.text.trim(),
-        );
-        setState(() {
-          showReset = false;
-          status = '✅ Password reset successful. Please sign in.';
-        });
-      } catch (e) {
-        setState(() => status = '❌ Password reset failed: $e');
-      }
-    });
+    } catch (e) {
+      status = "❌ Sign-in failed: $e";
+    }
+    setState(() => loading = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-          appBar: AppBar(title: const Text('Amoro Auth')),
-          body: Padding(
+    return Scaffold(
+      appBar: AppBar(title: Text("Amoro Auth")),
+      body: Stack(
+        children: [
+          Padding(
             padding: const EdgeInsets.all(20),
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email')),
+                  TextField(controller: email, decoration: InputDecoration(labelText: "Email")),
                   TextField(
-                    controller: passwordController,
-                    decoration: const InputDecoration(labelText: 'Password'),
+                    controller: password,
+                    decoration: InputDecoration(labelText: "Password"),
                     obscureText: true,
                   ),
                   const SizedBox(height: 20),
-                  if (!showConfirmation && !showReset) ...[
-                    ElevatedButton(onPressed: _isLoading ? null : _signUp, child: const Text('Sign Up')),
-                    ElevatedButton(onPressed: _isLoading ? null : _signIn, child: const Text('Sign In')),
-                    TextButton(onPressed: _isLoading ? null : _forgotPassword, child: const Text('Forgot Password?')),
+
+                  if (!showConfirm) ...[
+                    ElevatedButton(onPressed: loading ? null : _signUp, child: Text("Sign Up")),
+                    ElevatedButton(onPressed: loading ? null : _signIn, child: Text("Sign In")),
                   ],
-                  if (showConfirmation) ...[
-                    TextField(
-                      controller: confirmCodeController,
-                      decoration: const InputDecoration(labelText: 'Confirmation Code'),
-                    ),
-                    ElevatedButton(onPressed: _isLoading ? null : _confirmSignUp, child: const Text('Confirm Email')),
-                    TextButton(onPressed: _isLoading ? null : _resendCode, child: const Text('Resend Confirmation Code')),
+
+                  if (showConfirm) ...[
+                    TextField(controller: confirm, decoration: InputDecoration(labelText: "Confirmation Code")),
+                    ElevatedButton(onPressed: loading ? null : _confirmSignUp, child: Text("Confirm Email")),
                   ],
-                  if (showReset) ...[
-                    TextField(
-                      controller: confirmCodeController,
-                      decoration: const InputDecoration(labelText: 'Reset Code'),
-                    ),
-                    TextField(
-                      controller: newPasswordController,
-                      decoration: const InputDecoration(labelText: 'New Password'),
-                      obscureText: true,
-                    ),
-                    ElevatedButton(onPressed: _isLoading ? null : _confirmForgotPassword, child: const Text('Confirm Reset')),
-                  ],
+
                   const SizedBox(height: 20),
                   Text(status, textAlign: TextAlign.center),
                 ],
               ),
             ),
           ),
-        ),
 
-        // === LOADING OVERLAY ===
-        if (_isLoading)
-          Container(
-            color: Colors.black.withOpacity(0.5),
-            child: const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
-          ),
-      ],
+          if (loading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(child: CircularProgressIndicator(color: Colors.white)),
+            )
+        ],
+      ),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  final VoidCallback onSignOut;
-  const HomeScreen({required this.onSignOut});
+/// ------------------------------
+/// HOME SCREEN (BUTTON SHOWS HERE!!)
+/// ------------------------------
+class HomeScreen extends StatefulWidget {
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool creating = false;
+  String message = "";
+
+  Future<void> _createTestProfile() async {
+    setState(() => creating = true);
+
+    final user = await Amplify.Auth.getCurrentUser();
+
+    final request = GraphQLRequest<String>(
+      document: '''
+        mutation CreateUserProfile {
+          createUserProfile(input: {
+            id: "${user.userId}",
+            name: "Test User",
+            age: 21,
+            bio: "This is a test profile",
+            gender: "male"
+          }) { id name }
+        }
+      ''',
+    );
+
+    try {
+      final response = await Amplify.API.mutate(request: request).response;
+
+      if (response.errors.isEmpty) {
+        message = "🎉 Profile created!";
+      } else {
+        message = "❌ GraphQL error: ${response.errors.first.message}";
+      }
+    } catch (e) {
+      message = "❌ Mutation failed: $e";
+    }
+
+    setState(() => creating = false);
+  }
 
   Future<void> _signOut() async {
-    try {
-      await Amplify.Auth.signOut();
-      onSignOut();
-    } catch (e) {
-      safePrint('❌ Sign-out failed: $e');
-    }
+    await Amplify.Auth.signOut();
+    runApp(MyApp());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Welcome to Amoro')),
+      appBar: AppBar(title: Text("Welcome to Amoro")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('🎉 You are signed in!'),
+            Text("🎉 You are signed in!"),
             const SizedBox(height: 20),
-            ElevatedButton(onPressed: _signOut, child: const Text('Sign Out')),
+
+            ElevatedButton(
+              onPressed: creating ? null : _createTestProfile,
+              child: Text("Create Test User Profile"),
+            ),
+            const SizedBox(height: 10),
+
+            Text(message),
+
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _signOut,
+              child: Text("Sign Out"),
+            ),
           ],
         ),
       ),

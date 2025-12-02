@@ -23,6 +23,9 @@
           "appId": "dsttd7yjnjma8",
           "type": "manual"
         }
+      },
+      "storage": {
+        "userprofilephotos": {}
       }
     }
   }

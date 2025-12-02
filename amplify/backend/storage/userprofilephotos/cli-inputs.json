@@ -1,0 +1,13 @@
+{
+  "resourceName": "userprofilephotos",
+  "policyUUID": "c7358100",
+  "bucketName": "amoro-userphotos",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "DELETE"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
